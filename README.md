@@ -17,6 +17,71 @@
 | Notification   | GET  | notification/list     | แจ้งเตือนโง่ๆ                    |
 
 
+# ER Diagram
+
+``` mermaid
+erDiagram
+    User }|..|{ Car : has
+    User }|..|{ Device : has
+    User }|..|{ Notification : has
+    Car }|..|{ InsuranceProvider : has
+    User {
+        OID id
+        string phone
+        string name
+        object setting
+        object geolocation
+        date createdAt
+        date updatedAt
+    }
+
+    Device {
+        OID id
+        OID userId
+        string deviceName
+        string deviceUUID
+        string firebaseToken
+        date createdAt
+        date updatedAt
+    }
+
+    Car {
+        OID id
+        OID userId
+        OID insureId
+        string brandName
+        string genNo
+        string carNo
+        number expiredYear
+        string insureRangeAmount
+        date createdAt
+        date updatedAt
+    }
+
+    Notification {
+        OID id
+        OID userId
+        string title
+        string message
+        boolean read
+        date readAt
+        object ref
+        date createdAt
+        date updatedAt
+    }
+
+    InsuranceProvider {
+        OID id 
+        string name
+        string phone
+        string address
+        date createdAt
+        date updatedAt
+    }
+
+```
+# Sequence Diagram
+
 ```mermaid
 sequenceDiagram
     Client->>+Rest: [POST] auth/register
