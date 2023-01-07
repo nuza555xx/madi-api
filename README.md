@@ -127,3 +127,16 @@ sequenceDiagram
 
 ```
 
+# Tech Stacks
+| Name | Meaning | Role
+| -------- | ------ |
+| IONIC Framework | Using application cross platform is easy. | Frontend
+| Golang | Using api prove business logic is the fast. | Backend
+| MongoDB | Using store data. | Store
+| Redis | Using cache data is stable. | Store
+| Firebase | Using make push notification to device | Provide
+
+
+
+
+
