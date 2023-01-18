@@ -5,16 +5,18 @@
 
 | Services | Method |  Endpoint |  Description  |
 | -------- | ------ | --------- |  ----------   |
-| Authentication | POST | auth/register         | สมัครสมาชิกไงกำ                 |
-| Authentication | GET  | auth/login            | เข้าสู่ระบบ                      |
-| Authentication | POST | auth/register-token   | สมัคร fcm messaging            |
-| Authentication | POST | auth/unregister-token | ยกเลิกสมัคร fcm messaging.      |
-| User           | GET  | user/:userId          | แสดงข้อมูลผู้ใช้                   |
-| User           | GET  | user/my-car           | แสดงข้อมูลรถโง่ๆ                 |
-| Insurance      | POST | insure/car            | เพิ่มรถของตัวเอง เช่น MG          |
-| Insurance      | PUT  | insure/car            | แก้ไขรถตัวเอง เช่น เหลือแค่ผ่อนกุญแจ |
-| Insurance      | GET  | insure/search/:carNo  | ค้นหารถไอ้เหี้ยนั้น                 |
-| Notification   | GET  | notification/list     | แจ้งเตือนโง่ๆ                    |
+| Authentication | POST | auth/register-with-email  | สมัครสมาชิกไงกำ                 |
+| Authentication | POST | auth/register-with-social | สมัครสมาชิกไงกำ                 |
+| Authentication | GET  | auth/login-with-email     | เข้าสู่ระบบ                      |
+| Authentication | GET  | auth/login-with-social    | เข้าสู่ระบบ                      |
+| Authentication | POST | auth/register-token       | สมัคร fcm messaging            |
+| Authentication | POST | auth/unregister-token     | ยกเลิกสมัคร fcm messaging.      |
+| User           | GET  | user/:userId              | แสดงข้อมูลผู้ใช้                   |
+| User           | GET  | user/my-car               | แสดงข้อมูลรถโง่ๆ                 |
+| Insurance      | POST | insure/car                | เพิ่มรถของตัวเอง เช่น MG          |
+| Insurance      | PUT  | insure/car                | แก้ไขรถตัวเอง เช่น เหลือแค่ผ่อนกุญแจ |
+| Insurance      | GET  | insure/search/:carNo      | ค้นหารถไอ้เหี้ยนั้น                 |
+| Notification   | GET  | notification/list         | แจ้งเตือนโง่ๆ                    |
 
 
 # ER Diagram
@@ -86,12 +88,22 @@ erDiagram
 
 ```mermaid
 sequenceDiagram
-    Client->>+Rest: [POST] auth/register
+    Client->>+Rest: [POST] auth/register-with-email
+    Rest->>+DB: create user
+    DB-->>-Rest: return user
+    Rest-->>-Client: response accessToken
+    
+    Client->>+Rest: [POST] auth/register-with-social
     Rest->>+DB: create user
     DB-->>-Rest: return user
     Rest-->>-Client: response accessToken
 
-    Client->>+Rest: [POST] auth/login
+    Client->>+Rest: [POST] auth/login-with-email
+    Rest->>+DB: query user
+    DB-->>-Rest: return user
+    Rest-->>-Client: response accessToken
+    
+    Client->>+Rest: [POST] auth/login-with-social
     Rest->>+DB: query user
     DB-->>-Rest: return user
     Rest-->>-Client: response accessToken
@@ -130,8 +142,8 @@ sequenceDiagram
 ```
 
 # Tech Stacks
-| Name | Meaning | Role
-| -------- | ------ | ------ |
+|   Name   | Meaning  |  Role  |
+| -------- | -------- | ------ |
 | IONIC Framework | Using application cross platform is easy. | Frontend
 | Golang | Using api prove business logic is the fast. | Backend
 | MongoDB | Using store data. | Store
