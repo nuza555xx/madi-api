@@ -21,9 +21,9 @@
 
 ``` mermaid
 erDiagram
-    User }|..|{ Car : has
-    User }|..|{ Device : has
-    User }|..|{ Notification : has
+    Account }|..|{ Car : has
+    Account }|..|{ Device : has
+    Account }|..|{ Notification : has
     Car }|..|{ InsuranceProvider : has
     Account {
         OID id
