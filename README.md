@@ -25,10 +25,12 @@ erDiagram
     User }|..|{ Device : has
     User }|..|{ Notification : has
     Car }|..|{ InsuranceProvider : has
-    User {
+    Account {
         OID id
         string phone
-        string name
+        string email
+        string password
+        string displayName
         object setting
         object geolocation
         date createdAt
