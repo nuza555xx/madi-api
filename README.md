@@ -5,10 +5,9 @@
 
 | Services | Method |  Endpoint |  Description  |
 | -------- | ------ | --------- |  ----------   |
-| Authentication | POST | auth/register-with-email  | สมัครสมาชิกไงกำ                 |
-| Authentication | POST | auth/register-with-social | สมัครสมาชิกไงกำ                 |
-| Authentication | GET  | auth/login-with-email     | เข้าสู่ระบบ                      |
-| Authentication | GET  | auth/login-with-social    | เข้าสู่ระบบ                      |
+| Authentication | POST | auth/signup-with-email    | สมัครสมาชิกไงกำ                 |
+| Authentication | POST | auth/signin-with-social   | เข้าสู่ระบบ + สมัครสมาชิกไงกำ      |
+| Authentication | GET  | auth/signin-with-email    | เข้าสู่ระบบ                      |
 | Authentication | POST | auth/register-token       | สมัคร fcm messaging            |
 | Authentication | POST | auth/unregister-token     | ยกเลิกสมัคร fcm messaging.      |
 | User           | GET  | user/:userId              | แสดงข้อมูลผู้ใช้                   |
@@ -88,26 +87,21 @@ erDiagram
 
 ```mermaid
 sequenceDiagram
-    Client->>+Rest: [POST] auth/register-with-email
+    Client->>+Rest: [POST] auth/signup-with-email
     Rest->>+DB: create user
     DB-->>-Rest: return user
     Rest-->>-Client: response accessToken
     
-    Client->>+Rest: [POST] auth/register-with-social
-    Rest->>+DB: create user
+    Client->>+Rest: [POST] auth/signin-with-social
+    Rest->>+DB: create user + query user
     DB-->>-Rest: return user
     Rest-->>-Client: response accessToken
 
-    Client->>+Rest: [POST] auth/login-with-email
+    Client->>+Rest: [POST] auth/signin-with-email
     Rest->>+DB: query user
     DB-->>-Rest: return user
     Rest-->>-Client: response accessToken
     
-    Client->>+Rest: [POST] auth/login-with-social
-    Rest->>+DB: query user
-    DB-->>-Rest: return user
-    Rest-->>-Client: response accessToken
-
     Client->>+Rest: [POST] auth/register-token
     Rest->>-DB: update user
 
