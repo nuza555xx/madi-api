@@ -55,8 +55,8 @@ func GenerateJWT(payload interface{}) (string, error) {
 	now := time.Now()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"Payload":   payload,
-		"ExpiresAt": now.Add(1 * time.Hour * 24).Unix(),
+		"payload":   payload,
+		"expiresAt": now.Add(1 * time.Hour * 24).Unix(),
 	})
 
 	tokenString, err := token.SignedString(signingKey)
