@@ -18,3 +18,5 @@ nap/cmd/nap/nap
 
 # enviroments files
 *.env
+
+gomon_spawn

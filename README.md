@@ -12,8 +12,8 @@
 | Authentication | POST | auth/unregister-token     | ยกเลิกสมัคร fcm messaging.      |
 | User           | GET  | user/:userId              | แสดงข้อมูลผู้ใช้                   |
 | User           | GET  | user/my-car               | แสดงข้อมูลรถโง่ๆ                 |
-| Insurance      | POST | insure/car                | เพิ่มรถของตัวเอง เช่น MG          |
-| Insurance      | PUT  | insure/car                | แก้ไขรถตัวเอง เช่น เหลือแค่ผ่อนกุญแจ |
+| User           | POST | user/car                  | เพิ่มรถของตัวเอง เช่น MG          |
+| User           | PUT  | user/car                  | แก้ไขรถตัวเอง เช่น เหลือแค่ผ่อนกุญแจ |
 | Insurance      | GET  | insure/search/:carNo      | ค้นหารถไอ้เหี้ยนั้น                 |
 | Notification   | GET  | notification/list         | แจ้งเตือนโง่ๆ                    |
 

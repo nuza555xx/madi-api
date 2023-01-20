@@ -30,7 +30,10 @@ func (app *App) Initialize(config *config.Config) {
 }
 
 func (app *App) setRouters() {
-	app.Post("/register-with-email", app.handleRequest(handler.CreateAccountWitEmail))
+	app.Post("/signup-with-email", app.handleRequest(handler.SignUpAccountWithEmail))
+	app.Post("/signin-with-email", app.handleRequest(handler.SignInAccountWithEmail))
+	app.Post("/signin-with-social", app.handleRequest(handler.SignInAccountWithSocial))
+
 }
 
 func (app *App) UseMiddleware(middleware mux.MiddlewareFunc) {
@@ -42,6 +45,8 @@ func (app *App) UseMiddleware(middleware mux.MiddlewareFunc) {
 func (app *App) createIndexes() {
 	keys := bsonx.Doc{
 		{Key: "email", Value: bsonx.Int32(1)},
+		{Key: "social.email", Value: bsonx.Int32(1)},
+		{Key: "social.socialId", Value: bsonx.Int32(1)},
 	}
 	account := app.DB.Collection("account")
 	db.SetIndexes(account, keys)
