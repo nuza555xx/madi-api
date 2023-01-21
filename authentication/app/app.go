@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github/madi-api/app/core"
 	"github/madi-api/app/db"
 	"github/madi-api/app/handler"
 	"github/madi-api/config"
@@ -21,7 +22,7 @@ type App struct {
 }
 
 func (app *App) Initialize(config *config.Config) {
-	app.DB = db.InitialConnection("dev", config.MongoURI())
+	app.DB = db.InitialConnection(config.MongoDB(), config.MongoURI())
 	app.createIndexes()
 
 	app.Router = mux.NewRouter()
@@ -38,17 +39,22 @@ func (app *App) setRouters() {
 
 func (app *App) UseMiddleware(middleware mux.MiddlewareFunc) {
 	app.Router.Use(middleware)
-	app.Router = app.Router.PathPrefix("/auth").Subrouter()
+	app.Router = app.Router.PathPrefix(core.PrefixAPI).Subrouter()
 
 }
 
 func (app *App) createIndexes() {
+	account := app.DB.Collection(core.AccountCollection)
+
 	keys := bsonx.Doc{
 		{Key: "email", Value: bsonx.Int32(1)},
-		{Key: "social.email", Value: bsonx.Int32(1)},
 		{Key: "social.socialId", Value: bsonx.Int32(1)},
 	}
-	account := app.DB.Collection("account")
+	db.SetIndexes(account, keys)
+
+	keys = bsonx.Doc{
+		{Key: "email", Value: bsonx.Int32(1)},
+	}
 	db.SetIndexes(account, keys)
 }
 
