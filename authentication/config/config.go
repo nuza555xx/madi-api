@@ -3,41 +3,46 @@ package config
 import (
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	ServerHost    string // address that server will listening on
-	MongoUser     string // mongo db username
-	MongoPassword string // mongo db password
-	MongoHost     string // host that mongo db listening on
-	MongoPort     string // port that mongo db listening on
-	JwtSecret     string // jwt secret
-
+	ServerHost    string
+	MongoUser     string
+	MongoPassword string
+	MongoHost     string
+	MongoPort     string
+	MongoDBName   string
+	JwtSecret     string
+	JwtExpiration string
 }
 
 func (config *Config) initialize() {
-	err := godotenv.Load(".env")
+	env, err := godotenv.Read(".env")
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
 
-	config.ServerHost = os.Getenv("SERVER_HOST")
-	config.MongoUser = os.Getenv("MONGO_USER")
-	config.MongoPassword = os.Getenv("MONGO_PASSWORD")
-	config.MongoHost = os.Getenv("MONGO_HOST")
-	config.MongoPort = os.Getenv("MONGO_PORT")
-	config.JwtSecret = os.Getenv("JWT_SECRET")
+	config.ServerHost = env["SERVER_HOST"]
+	config.MongoUser = env["MONGO_USER"]
+	config.MongoPassword = env["MONGO_PASSWORD"]
+	config.MongoHost = env["MONGO_HOST"]
+	config.MongoDBName = env["MONGO_DBNAME"]
+	config.JwtSecret = env["JWT_SECRET"]
+	config.JwtExpiration = env["JWT_EXPIRATION"]
 
 }
 
 func (config *Config) MongoURI() string {
-	return fmt.Sprintf("mongodb://%s:%s",
+	return fmt.Sprintf("mongodb+srv://%s:%s@%s/?retryWrites=true&w=majority",
+		config.MongoUser,
+		config.MongoPassword,
 		config.MongoHost,
-		config.MongoPort,
 	)
+}
+func (config *Config) MongoDB() string {
+	return config.MongoDBName
 }
 
 func NewConfig() *Config {

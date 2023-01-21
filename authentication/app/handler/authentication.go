@@ -10,153 +10,131 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func SignUpAccountWithEmail(db *mongo.Database, res http.ResponseWriter, req *http.Request) {
-
 	account := new(model.Account)
 
-	err := json.NewDecoder(req.Body).Decode(account)
+	err := json.NewDecoder(req.Body).Decode(&account)
 	if err != nil {
-		ResponseWriter(res, http.StatusBadRequest, "Body json request have issues!!!", nil)
+		ResponseWithError(res, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
 	if ok, errors := core.ValidateInputs(account); !ok {
-		model.NewValidatedResponse(http.StatusBadRequest, "Invalid is value please check again.", errors)
+		ResponseWithValidationError(res, http.StatusBadRequest, errors)
 		return
 	}
 
-	collection := db.Collection("account")
+	collection := db.Collection(core.AccountCollection)
 
 	password, err := bcrypt.GenerateFromPassword([]byte(account.Password), 14)
+	if err != nil {
+		ResponseWithError(res, http.StatusBadRequest, "Error hashing password")
+		return
+	}
 	account.Password = string(password)
 
-	if err != nil {
-		ResponseWriter(res, http.StatusBadRequest, "Password hash is failed.", nil)
+	existingAccount := &model.Account{}
+	err = collection.FindOne(context.TODO(), bson.M{"email": account.Email}).Decode(existingAccount)
+	if err == nil {
+		ResponseWithError(res, http.StatusBadRequest, "Email already exists")
 		return
 	}
 
-	_, err = collection.InsertOne(context.TODO(), model.NewAccount(account))
+	result, err := collection.InsertOne(context.TODO(), account)
 	if err != nil {
-		mongoException := err.(mongo.WriteException)
-		if mongoException.WriteErrors[0].Code == 11000 {
-			ResponseWriter(res, http.StatusBadRequest, "Email is existing, Please try again.", nil)
+		if mongo.IsDuplicateKeyError(err) {
+			ResponseWithError(res, http.StatusBadRequest, "Email already exists")
 		} else {
-			ResponseWriter(res, http.StatusBadRequest, err.Error(), nil)
+			ResponseWithError(res, http.StatusBadRequest, "Error inserting account into the database")
 		}
 		return
 	}
 
-	findOptions := options.FindOne().SetProjection(bson.D{primitive.E{Key: "email", Value: 1}})
-	err = collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "email", Value: account.Email}}, findOptions).Decode(&account)
+	accessToken, err := core.GenerateJWT(map[string]interface{}{"_id": result.InsertedID.(primitive.ObjectID)})
 	if err != nil {
-		ResponseWriter(res, http.StatusBadRequest, "Account does not exist.", nil)
+		ResponseWithError(res, http.StatusBadRequest, "Error generating JWT")
 		return
 	}
 
-	accessToken, err := core.GenerateJWT(map[string]interface{}{"_id": account.ID})
-
-	if err != nil {
-		ResponseWriter(res, http.StatusBadRequest, "Invalid authentication token.", nil)
-		return
-	}
-
-	ResponseWriter(res, http.StatusCreated, "", map[string]interface{}{"accessToken": accessToken})
-
+	ResponseWithJSON(res, http.StatusCreated, map[string]interface{}{"accessToken": accessToken})
 }
 
 func SignInAccountWithEmail(db *mongo.Database, res http.ResponseWriter, req *http.Request) {
-
 	signIn := new(model.SignInWithEmail)
 
 	err := json.NewDecoder(req.Body).Decode(signIn)
 	if err != nil {
-		ResponseWriter(res, http.StatusBadRequest, "Body json request have issues!!!", nil)
+		ResponseWithError(res, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
 	if ok, errors := core.ValidateInputs(signIn); !ok {
-		model.NewValidatedResponse(http.StatusBadRequest, "Invalid is value please check again.", errors)
+		ResponseWithValidationError(res, http.StatusBadRequest, errors)
 		return
 	}
 
-	collection := db.Collection("account")
+	collection := db.Collection(core.AccountCollection)
 
 	var account model.Account
-	findOptions := options.FindOne().SetProjection(bson.D{primitive.E{Key: "password", Value: 1}})
-	err = collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "email", Value: signIn.Email}, primitive.E{Key: "social", Value: bson.M{"$exists": false}}}, findOptions).Decode(&account)
+	err = collection.FindOne(context.TODO(), bson.M{"email": signIn.Email, "social": bson.M{"$exists": false}}).Decode(&account)
 	if err != nil {
-		ResponseWriter(res, http.StatusBadRequest, "Account not found. Please check again.", nil)
+		ResponseWithError(res, http.StatusBadRequest, "Account not found")
 		return
-
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(signIn.Password))
-
 	if err != nil {
-		ResponseWriter(res, http.StatusBadRequest, "Password is not match.", nil)
+		ResponseWithError(res, http.StatusBadRequest, "Incorrect password")
 		return
 	}
 
 	accessToken, err := core.GenerateJWT(map[string]interface{}{"_id": account.ID})
-
 	if err != nil {
-		ResponseWriter(res, http.StatusBadRequest, "Invalid authentication token.", nil)
+		ResponseWithError(res, http.StatusBadRequest, "Error generating JWT")
 		return
 	}
 
-	ResponseWriter(res, http.StatusOK, "", map[string]interface{}{"accessToken": accessToken})
-
+	ResponseWithJSON(res, http.StatusOK, map[string]interface{}{"accessToken": accessToken})
 }
 
 func SignInAccountWithSocial(db *mongo.Database, res http.ResponseWriter, req *http.Request) {
-
 	account := new(model.AccountSyncSocial)
 
 	err := json.NewDecoder(req.Body).Decode(account)
 	if err != nil {
-		ResponseWriter(res, http.StatusBadRequest, "Body json request have issues!!!", nil)
+		ResponseWithError(res, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
 	if ok, errors := core.ValidateInputs(account); !ok {
-		model.NewValidatedResponse(http.StatusBadRequest, "Invalid is value please check again.", errors)
+		ResponseWithValidationError(res, http.StatusBadRequest, errors)
 		return
 	}
 
-	collection := db.Collection("account")
+	collection := db.Collection(core.AccountCollection)
 
-	findOptions := options.FindOne().SetProjection(bson.D{primitive.E{Key: "email", Value: 1}})
-	err = collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "email", Value: account.Email}, primitive.E{Key: "social.socialId", Value: account.Social.SocialId}}, findOptions).Decode(&account)
+	var existingAccount model.AccountSyncSocial
+	err = collection.FindOne(context.TODO(), bson.M{"email": account.Email, "social.socialId": account.Social.SocialId}).Decode(&existingAccount)
 	if err != nil {
-		_, err = collection.InsertOne(context.TODO(), model.NewAccountSyncSocial(account))
+		_, err = collection.InsertOne(context.TODO(), account)
 		if err != nil {
-			mongoException := err.(mongo.WriteException)
-			if mongoException.WriteErrors[0].Code == 11000 {
-				ResponseWriter(res, http.StatusBadRequest, "Account is existing, Please try again.", nil)
+			if mongo.IsDuplicateKeyError(err) {
+				ResponseWithError(res, http.StatusBadRequest, "Account already exists")
 			} else {
-				ResponseWriter(res, http.StatusBadRequest, err.Error(), nil)
+				ResponseWithError(res, http.StatusBadRequest, "Error inserting account into the database")
 			}
-			return
-		}
-
-		err = collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "email", Value: account.Email}}, findOptions).Decode(&account)
-		if err != nil {
-			ResponseWriter(res, http.StatusBadRequest, "Account does not exist.", nil)
 			return
 		}
 	}
 
 	accessToken, err := core.GenerateJWT(map[string]interface{}{"_id": account.ID})
-
 	if err != nil {
-		ResponseWriter(res, http.StatusBadRequest, "Invalid authentication token.", nil)
+		ResponseWithError(res, http.StatusBadRequest, "Error generating JWT")
 		return
 	}
 
-	ResponseWriter(res, http.StatusOK, "", map[string]interface{}{"accessToken": accessToken})
-
+	ResponseWithJSON(res, http.StatusOK, map[string]interface{}{"accessToken": accessToken})
 }
