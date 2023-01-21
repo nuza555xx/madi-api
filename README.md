@@ -1,23 +1,74 @@
 # Madi API
-  ของดี
+Madi API is a RESTful API built with Go, NestJS, and MongoDB. The API is designed to support the Madi mobile application, which is built with Ionic. The project is open source and hosted on GitHub.
 
-> ทำวันนี้ให้แย่กว่าเมื่อวาน พร่ามมม
+> The goal of Madi API is to improve daily lives by providing useful services and easy-to-use interfaces.
 
-| Services | Method |  Endpoint |  Description  |
+The following table lists the available services and their corresponding endpoints:
+
+| Services	Method	Endpoint	Description
 | -------- | ------ | --------- |  ----------   |
-| Authentication | POST | auth/signup-with-email    | สมัครสมาชิกไงกำ                 |
-| Authentication | POST | auth/signin-with-social   | เข้าสู่ระบบ + สมัครสมาชิกไงกำ      |
-| Authentication | GET  | auth/signin-with-email    | เข้าสู่ระบบ                      |
-| Authentication | POST | auth/register-token       | สมัคร fcm messaging            |
-| Authentication | POST | auth/unregister-token     | ยกเลิกสมัคร fcm messaging.      |
-| User           | GET  | user/:userId              | แสดงข้อมูลผู้ใช้                   |
-| User           | GET  | user/my-car               | แสดงข้อมูลรถโง่ๆ                 |
-| User           | POST | user/car                  | เพิ่มรถของตัวเอง เช่น MG          |
-| User           | PUT  | user/car                  | แก้ไขรถตัวเอง เช่น เหลือแค่ผ่อนกุญแจ |
-| Insurance      | GET  | insure/search/:carNo      | ค้นหารถไอ้เหี้ยนั้น                 |
-| Notification   | GET  | notification/list         | แจ้งเตือนโง่ๆ                    |
+| Authentication |	POST |  auth/signup-with-email	| Register using an email address
+| Authentication |	POST |  auth/signin-with-social	| Sign in and register with a social account
+| Authentication |	GET	 |  auth/signin-with-email	| Sign in using an email address
+| Authentication |	POST |  auth/register-token	    | Register for FCM messaging
+| Authentication |	POST |  auth/unregister-token	| Unregister for FCM messaging
+| User           |  GET	 |  user/:userId	        | Retrieve a user's information
+| User           |  GET	 |  user/my-car	            | Retrieve the user's car information
+| User           |  POST |  user/car	            | Add a car (e.g. MG)
+| User           |  PUT	 |  user/car	            | Edit a car (e.g. only have the key)
+| Insurance      |	GET	 |  insure/search/:carNo	| Search for a specific car
+| Notification   |	GET	 |  notification/list	    | Retrieve notifications
 
+** Getting Started **
+These instructions will help you get a copy of the project up and running on your local machine for development and testing purposes.
+Prerequisites
+* Go version 1.15+
+* Node.js version 14+
+* MongoDB version 4.4+
+Installation
+1. Clone the repository to your local machine
+``` git clone https://github.com/nuza555xx/madi-api.git ```
 
+2. Change into the project directory
+``` cd madi-api ```
+
+3. Install the dependencies
+```
+go get -d -v ./... 
+npm install 
+```
+
+4. Start the MongoDB server
+``` mongod ```
+
+5. Build and run the API
+``` 
+cd authentication
+go build .
+
+cd user
+npm run build
+
+```
+6. The API should now be running on http://localhost:3000
+Project Structure
+The project is separated into two main directories:
+* authentication: This folder contains the Go code for handling user authentication and authorization.
+* user: This folder contains the NestJS code for handling user management (CRUD operations)
+Built With
+* Go - The programming language used
+* NestJS - A progressive Node.js framework for building efficient and scalable server-side applications
+* Ionic - A popular open-source framework for building cross-platform mobile applications
+* MongoDB - A NoSQL document-based database
+Contributing
+Please read CONTRIBUTING.md for details on our code of conduct, and the process for submitting pull requests to us.
+Versioning
+We use SemVer for versioning. For the versions available, see the tags on this repository.
+Authors
+* Nuza - Initial work - nuza555xx
+See also the list of contributors who participated in this project.
+License
+This project is licensed under the MIT License - see the LICENSE.md file for details
 # ER Diagram
 
 ``` mermaid
@@ -134,15 +185,6 @@ sequenceDiagram
     Rest-->>-Client: response car
 
 ```
-
-# Tech Stacks
-|   Name   | Meaning  |  Role  |
-| -------- | -------- | ------ |
-| IONIC Framework | Using application cross platform is easy. | Frontend
-| Golang | Using api prove business logic is the fast. | Backend
-| MongoDB | Using store data. | Store
-| Redis | Using cache data is stable. | Store
-| Firebase | Using make push notification to device | Provide
 
 
 
