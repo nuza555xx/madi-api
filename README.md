@@ -19,18 +19,24 @@ The following table lists the available services and their corresponding endpoin
 | Insurance      |	GET	 |  insure/search/:carNo	| Search for a specific car                     |
 | Notification   |	GET	 |  notification/list	    | Retrieve notifications                        |
 
-** Getting Started **
+## Getting Started
 These instructions will help you get a copy of the project up and running on your local machine for development and testing purposes.
-Prerequisites
+
+## Prerequisites
 * Go version 1.15+
 * Node.js version 14+
 * MongoDB version 4.4+
-Installation
+* 
+## Installation
 1. Clone the repository to your local machine
-``` git clone https://github.com/nuza555xx/madi-api.git ```
+``` 
+git clone https://github.com/nuza555xx/madi-api.git 
+```
 
 2. Change into the project directory
-``` cd madi-api ```
+``` 
+cd madi-api 
+```
 
 3. Install the dependencies
 ```
@@ -51,24 +57,30 @@ npm run build
 
 ```
 6. The API should now be running on http://localhost:3000
-Project Structure
+7. 
+## Project Structure
 The project is separated into two main directories:
 * authentication: This folder contains the Go code for handling user authentication and authorization.
 * user: This folder contains the NestJS code for handling user management (CRUD operations)
-Built With
+
+## Built With
 * Go - The programming language used
 * NestJS - A progressive Node.js framework for building efficient and scalable server-side applications
 * Ionic - A popular open-source framework for building cross-platform mobile applications
 * MongoDB - A NoSQL document-based database
-Contributing
+
+## Contributing
 Please read CONTRIBUTING.md for details on our code of conduct, and the process for submitting pull requests to us.
 Versioning
 We use SemVer for versioning. For the versions available, see the tags on this repository.
-Authors
+
+## Authors
 * Nuza - Initial work - nuza555xx
 See also the list of contributors who participated in this project.
-License
+
+## License
 This project is licensed under the MIT License - see the LICENSE.md file for details
+
 # ER Diagram
 
 ``` mermaid
