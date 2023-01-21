@@ -1,14 +1,16 @@
 package core
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
-	"github/madi-api/app/model"
-	"github/madi-api/config"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github/madi-api/config"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 var configs = config.NewConfig()
@@ -17,53 +19,66 @@ var signingKey = []byte(configs.JwtSecret)
 func IsAuthorized(next http.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		if r.Header["Authorization"] == nil || len(r.Header["Authorization"]) == 0 {
-			model.NewResponse(http.StatusForbidden, "Missing authorization header.", nil)
+		if r.Header.Get("Authorization") == "" {
+			responseWithError(w, http.StatusForbidden, "Missing authorization header.")
 			return
 		}
 
-		token := r.Header.Get("Authorization")
-		sToken := strings.Split(token, "Bearer ")
-		token = sToken[1]
+		token := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
 
-		accessToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("There was an error.")
-			}
-			return signingKey, nil
-		})
-
+		claims, err := validateJWT(token)
 		if err != nil {
-			if err == jwt.ErrTokenExpired {
-				model.NewResponse(http.StatusBadRequest, "Invalid token expired.", w)
-				return
-			} else {
-				model.NewResponse(http.StatusBadRequest, "Invalid authorization token.", w)
-				return
-			}
+			responseWithError(w, http.StatusUnauthorized, "Invalid token: "+err.Error())
+			return
 		}
 
-		if accessToken.Valid {
-			next.ServeHTTP(w, r)
-		}
-
+		// Add claims to request context
+		ctx := context.WithValue(r.Context(), "claims", claims)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
-func GenerateJWT(payload interface{}) (string, error) {
+func responseWithError(res http.ResponseWriter, statusCode int, message string) {
+	responseWithJSON(res, statusCode, map[string]string{"error": message})
+}
 
-	now := time.Now()
+func responseWithJSON(res http.ResponseWriter, statusCode int, payload interface{}) {
+	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(statusCode)
+	json.NewEncoder(res).Encode(payload)
+}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"payload":   payload,
-		"expiresAt": now.Add(1 * time.Hour * 24).Unix(),
+func validateJWT(tokenString string) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return signingKey, nil
 	})
 
-	tokenString, err := token.SignedString(signingKey)
+	if err != nil {
+		return nil, err
+	}
 
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, fmt.Errorf("invalid token")
+}
+
+func GenerateJWT(payload map[string]interface{}) (string, error) {
+	// set expiration time for token
+	expireTime := time.Now().Add(time.Hour * 24)
+	// create new token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"payload": payload,
+		"exp":     expireTime.Unix(),
+	})
+	// sign token with secret
+	tokenString, err := token.SignedString(signingKey)
 	if err != nil {
 		return "", err
 	}
-
 	return tokenString, nil
 }

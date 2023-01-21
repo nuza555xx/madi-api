@@ -1,7 +1,7 @@
 package db
 
 import (
-	"log"
+	"github/madi-api/app/core"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -10,16 +10,14 @@ import (
 )
 
 func InitialConnection(dbName string, mongoURI string) *mongo.Database {
-	serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
-	clientOptions := options.Client().
-		ApplyURI(mongoURI).
-		SetServerAPIOptions(serverAPIOptions)
-
+	clientOptions := options.Client().ApplyURI(mongoURI)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		log.Fatal(err)
+		core.ErrorLogger(err.Error())
 	}
+
 	return client.Database(dbName)
 }
