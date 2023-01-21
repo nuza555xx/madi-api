@@ -2,17 +2,27 @@ package core
 
 import (
 	"errors"
+	"fmt"
 	"runtime"
 	"time"
 
-	"github.com/fatih/color"
+	log "github.com/sirupsen/logrus"
 )
 
 func DebugLogger(m string) {
-	color.Green("%s - [ Logger ] 🚀 %s\n", time.Now().Format(time.RFC822), m)
+	log.WithFields(log.Fields{
+		"time": time.Now().Format(time.RFC822),
+		"type": "Logger",
+	}).Debug(m)
 }
 
 func ErrorLogger(m string) {
-	pc, _, line, _ := runtime.Caller(1)
-	color.Red("%s - [ Exception ] 💩 '%s' at %s line :: %d\n", time.Now().Format(time.RFC822), errors.New(m), runtime.FuncForPC(pc).Name(), line)
+	pc, file, line, _ := runtime.Caller(1)
+	log.WithFields(log.Fields{
+		"time":     time.Now().Format(time.RFC822),
+		"type":     "Exception",
+		"error":    errors.New(m),
+		"location": fmt.Sprintf("%s:%d", file, line),
+		"func":     runtime.FuncForPC(pc).Name(),
+	}).Error(m)
 }

@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/x/bsonx"
 )
 
-func SetIndexes(collection *mongo.Collection, keys bsonx.Doc) {
+func SetIndexes(collection *mongo.Collection, keys bsonx.Doc) error {
 	index := mongo.IndexModel{}
 	index.Keys = keys
 	unique := true
@@ -20,6 +20,7 @@ func SetIndexes(collection *mongo.Collection, keys bsonx.Doc) {
 	opts := options.CreateIndexes().SetMaxTime(10 * time.Second)
 	_, err := collection.Indexes().CreateOne(context.Background(), index, opts)
 	if err != nil {
-		log.Fatalf("Error while creating indexes: %v", err)
+		return fmt.Errorf("error creating indexes: %v", err)
 	}
+	return nil
 }

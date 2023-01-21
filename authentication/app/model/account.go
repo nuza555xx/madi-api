@@ -18,14 +18,6 @@ type (
 		UpdateAt    time.Time          `json:"updatedAt" bson:"updatedAt,omitempty"`
 	}
 
-	AccountSyncSocial struct {
-		ID          primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-		Email       string             `json:"email" bson:"email" validate:"required,email"`
-		DisplayName string             `json:"displayName" bson:"displayName" validate:"required"`
-		Social      *Social            `json:"social" bson:"social" validate:"required"`
-		CreatedAt   time.Time          `json:"createdAt" bson:"createdAt,omitempty"`
-		UpdateAt    time.Time          `json:"updatedAt" bson:"updatedAt,omitempty"`
-	}
 	Social struct {
 		Email       string `json:"email" bson:"email" validate:"required,email"`
 		Provider    string `json:"provider" bson:"provider" validate:"required"`
@@ -36,6 +28,15 @@ type (
 	Phone struct {
 		Tel         string `json:"tel," bson:"tel," validate:"required"`
 		CountryCode string `json:"countryCode," bson:"countryCode," validate:"required"`
+	}
+
+	AccountSyncSocial struct {
+		ID          primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+		Email       string             `json:"email" bson:"email" validate:"required,email"`
+		DisplayName string             `json:"displayName" bson:"displayName" validate:"required"`
+		Social      *Social            `json:"social" bson:"social" validate:"required"`
+		CreatedAt   time.Time          `json:"createdAt" bson:"createdAt,omitempty"`
+		UpdateAt    time.Time          `json:"updatedAt" bson:"updatedAt,omitempty"`
 	}
 
 	SignInWithEmail struct {
@@ -65,11 +66,11 @@ func NewAccountSyncSocial(account *AccountSyncSocial) *AccountSyncSocial {
 	}
 }
 
-func (account *Account) GenerateFromPassword(password string) error {
-	newPassword, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+func (account *Account) HashPassword(password string) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
-	account.Password = string(newPassword)
+	account.Password = string(hashedPassword)
 	return nil
 }
