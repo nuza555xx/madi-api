@@ -5,19 +5,19 @@ Madi API is a RESTful API built with Go, NestJS, and MongoDB. The API is designe
 
 The following table lists the available services and their corresponding endpoints:
 
-| Services	Method	Endpoint	Description
+| Services | Method	| Endpoint	| Description   |
 | -------- | ------ | --------- |  ----------   |
-| Authentication |	POST |  auth/signup-with-email	| Register using an email address
-| Authentication |	POST |  auth/signin-with-social	| Sign in and register with a social account
-| Authentication |	GET	 |  auth/signin-with-email	| Sign in using an email address
-| Authentication |	POST |  auth/register-token	    | Register for FCM messaging
-| Authentication |	POST |  auth/unregister-token	| Unregister for FCM messaging
-| User           |  GET	 |  user/:userId	        | Retrieve a user's information
-| User           |  GET	 |  user/my-car	            | Retrieve the user's car information
-| User           |  POST |  user/car	            | Add a car (e.g. MG)
-| User           |  PUT	 |  user/car	            | Edit a car (e.g. only have the key)
-| Insurance      |	GET	 |  insure/search/:carNo	| Search for a specific car
-| Notification   |	GET	 |  notification/list	    | Retrieve notifications
+| Authentication |	POST |  auth/signup-with-email	| Register using an email address               |
+| Authentication |	POST |  auth/signin-with-social	| Sign in and register with a social account    |
+| Authentication |	GET	 |  auth/signin-with-email	| Sign in using an email address                |
+| Authentication |	POST |  auth/register-token	    | Register for FCM messaging                    |
+| Authentication |	POST |  auth/unregister-token	| Unregister for FCM messaging                  |
+| User           |  GET	 |  user/:userId	        | Retrieve a user's information                 |
+| User           |  GET	 |  user/my-car	            | Retrieve the user's car information           |
+| User           |  POST |  user/car	            | Add a car (e.g. MG)                           |
+| User           |  PUT	 |  user/car	            | Edit a car (e.g. only have the key)           |
+| Insurance      |	GET	 |  insure/search/:carNo	| Search for a specific car                     |
+| Notification   |	GET	 |  notification/list	    | Retrieve notifications                        |
 
 ** Getting Started **
 These instructions will help you get a copy of the project up and running on your local machine for development and testing purposes.
